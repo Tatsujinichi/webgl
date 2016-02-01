@@ -52,9 +52,9 @@ function start() {
 }
 
 function draw(gl, scale, rotate, translate) {
-	gl.uniform4fv(scale, [0, 0, 0]);
-	gl.uniform4fv(rotate, [0, 0, 0]);
-	gl.uniform4fv(translate, [0, 0, 0]);
+	// gl.uniform4fv(scale, [0, 0, 0]);
+	// gl.uniform4fv(rotate, [0, 0, 0]);
+	// gl.uniform4fv(translate, [0, 0, 0]);
 
 
 	var buffer = gl.createBuffer();
