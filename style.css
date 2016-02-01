@@ -1,7 +1,8 @@
 body {
 	background-color: lightblue
 }
+
 canvas {
-	width:800px,
-	height:600px
+	width:800;
+	height:600;
 }
