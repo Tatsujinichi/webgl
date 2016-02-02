@@ -55,6 +55,8 @@ function start() { //eslint-disable-line no-unused-vars
 	var positionBuffer = gl.createBuffer();
 	var colorBuffer = gl.createBuffer();
 
+
+	//TODO: pass Trans rotate scale
 	var pyramidTranslation = [0, 0, 0, 0];
 	var cubeTranslation = [0, 0, 0, 0];
 	var pyramid = new Pyramid(pyramidTranslation);

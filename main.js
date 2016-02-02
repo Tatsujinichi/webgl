@@ -101,6 +101,8 @@
 		var positionBuffer = gl.createBuffer();
 		var colorBuffer = gl.createBuffer();
 
+
+		//TODO: pass Trans rotate scale
 		var pyramidTranslation = [0, 0, 0, 0];
 		var cubeTranslation = [0, 0, 0, 0];
 		var pyramid = new Pyramid(pyramidTranslation);
@@ -912,9 +914,12 @@
 	'use strict'; //eslint-disable-line no-unused-expressions
 	var inherits = __webpack_require__(9).inherits;
 	var Model = __webpack_require__(13);
-	function Pyramid() {
+	function Pyramid(translation, rotation, scale) {
 		Model.call(
 			this,
+			translation,
+			rotation,
+			scale,
 			[
 				0,0,0,
 				0.8,0,0,
@@ -957,11 +962,13 @@
 
 /***/ },
 /* 13 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	function Model(vertices, colors) {
+	var transformHelper = __webpack_require__(15);
+
+	function Model(translate, rotate, scale, vertices, colors) {
 		if (vertices.constructor !== Array) {
 			throw new Error('vertices must be an array');
 		}
@@ -971,6 +978,9 @@
 		if (vertices.length / colors.length !== 3/4) {
 			throw new Error('wrong number of colors for vertices');
 		}
+		this._translate = translate;
+		this._rotate = rotate;
+		this._scale = scale;
 		this._vertices = vertices;
 		this._colors = colors;
 	}
@@ -996,9 +1006,12 @@
 	'use strict'; //eslint-disable-line no-unused-expressions
 	var inherits = __webpack_require__(9).inherits;
 	var Model = __webpack_require__(13);
-	function Cube() {
+	function Cube(translation, rotation, scale) {
 		Model.call(
 			this,
+			translation,
+			rotation,
+			scale,
 				[
 				// Front face
 				-0.7, -0.7,  0.7,

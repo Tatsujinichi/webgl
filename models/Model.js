@@ -1,6 +1,8 @@
 'use strict';
 
-function Model(vertices, colors) {
+var transformHelper = require('transformHelper.js');
+
+function Model(translate, rotate, scale, vertices, colors) {
 	if (vertices.constructor !== Array) {
 		throw new Error('vertices must be an array');
 	}
@@ -10,6 +12,9 @@ function Model(vertices, colors) {
 	if (vertices.length / colors.length !== 3/4) {
 		throw new Error('wrong number of colors for vertices');
 	}
+	this._translate = translate;
+	this._rotate = rotate;
+	this._scale = scale;
 	this._vertices = vertices;
 	this._colors = colors;
 }
