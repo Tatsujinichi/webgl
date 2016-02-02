@@ -1,8 +1,10 @@
 'use strict'; //eslint-disable-line no-unused-expressions
 
 require('style.less');
+var Pyramid = require('./models/Pyramid.js');
+var Cube = require('./models/Cube.js');
+var transformHelper = require('transformHelper.js');
 
-var Pyramid = require('./Pyramid.js');
 var running = true;
 
 function start() { //eslint-disable-line no-unused-vars
@@ -53,27 +55,33 @@ function start() { //eslint-disable-line no-unused-vars
 	var positionBuffer = gl.createBuffer();
 	var colorBuffer = gl.createBuffer();
 
-	var pyramid = new Pyramid();
-	var positions = pyramid.getPositions();
+	var pyramidTranslation = [0, 0, 0, 0];
+	var cubeTranslation = [0, 0, 0, 0];
+	var pyramid = new Pyramid(pyramidTranslation);
+	var cube = new Cube(cubeTranslation);
+	var positions = new Float32Array(pyramid.getPositions().concat(cube.getPositions()));
+	var colors = new Float32Array(pyramid.getColors().concat(cube.getColors()));
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 	gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
-	gl.vertexAttribPointer(apos, 3, gl.FLOAT, false, 3 * 4, 0);
-
-	var colors = pyramid.getColors();
+	gl.vertexAttribPointer(apos, 3, gl.FLOAT, false, 0, 0);
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
 	gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
-	gl.vertexAttribPointer(acolor, 4, gl.FLOAT, false, 4 * 4, 0);
+	gl.vertexAttribPointer(acolor, 4, gl.FLOAT, false, 0, 0);
 
 	var amvp = gl.getUniformLocation(program, 'mvp');
 	if (amvp === -1) {
 		throw new Error('Error during uniform address retrieval');
 	}
-	setInterval(function () { draw(gl, amvp); }, 50);
+
+	console.log('vertices', positions.length);
+	console.log('colors', colors.length);
+	console.log(positions.length / colors.length);
+	setInterval(function () { draw(gl, amvp, positions.length); }, 50);
 }
 
-function draw(gl, amvp) {
+function draw(gl, amvp, totalVertices) {
 	if (gl && running) {
 		// Gets control value angles from HTML page via DOM
 		var ax = parseInt(document.getElementById('ax').innerHTML, 10); //eslint-disable-line no-undef
@@ -94,46 +102,16 @@ function draw(gl, amvp) {
 		az *= 2 * Math.PI / 360;
 
 			// Creates matrix using rotation angles
-		var mat = getTransformationMatrix(ax, ay, az);
+		var mat = transformHelper.getRotation(ax, ay, az);
 
 		// Sets the model-view-projections matrix in the shader
 		gl.uniformMatrix4fv(amvp, false, mat);
 
 		gl.clearColor(0.0, 0.0, 0.5, 1.0);
 		gl.clear(gl.COLOR_BUFFER_BIT);
-		gl.drawArrays(gl.TRIANGLES, 0, 12);
+		gl.drawArrays(gl.TRIANGLES, 0, totalVertices / 3);
 		gl.flush();
 	}
-}
-
-function getTransformationMatrix(rx, ry, rz) {
-	var cx = Math.cos(rx), sx = Math.sin(rx);
-	var cy = Math.cos(ry), sy = Math.sin(ry);
-	var cz = Math.cos(rz), sz = Math.sin(rz);
-
-	return new Float32Array(
-		[cy * cz, (sx * sy * cz - cx * sz), (sx * sz + cx * sy * cz), 0,
-		cy * sz, (sx * sy * sz + cx * cz), (cx * sy * sz - sx * cz), 0,
-		-sy,   sx * cy,            cx * cy,            0,
-		0,     0,                0,                1]);
-}
-
-function makeTranslation(tx, ty, tz) {
-	return [
-		1, 0, 0, tx,
-		0, 1, 0, ty,
-		0, 0, 1, tz,
-		0, 0, 0, 1
-	];
-}
-
-function makeScale(sx, sy, sz) {
-	return [
-		sx, 0, 0, 0,
-		0, sy, 0, 0,
-		0, 0, sz, 0,
-		0, 0, 0, 1
-  ];
 }
 
 start();

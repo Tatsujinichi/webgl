@@ -47,8 +47,10 @@
 	'use strict'; //eslint-disable-line no-unused-expressions
 
 	__webpack_require__(1);
+	var Pyramid = __webpack_require__(12);
+	var Cube = __webpack_require__(14);
+	var transformHelper = __webpack_require__(15);
 
-	var Pyramid = __webpack_require__(7);
 	var running = true;
 
 	function start() { //eslint-disable-line no-unused-vars
@@ -99,27 +101,33 @@
 		var positionBuffer = gl.createBuffer();
 		var colorBuffer = gl.createBuffer();
 
-		var pyramid = new Pyramid();
-		var positions = pyramid.getPositions();
+		var pyramidTranslation = [0, 0, 0, 0];
+		var cubeTranslation = [0, 0, 0, 0];
+		var pyramid = new Pyramid(pyramidTranslation);
+		var cube = new Cube(cubeTranslation);
+		var positions = new Float32Array(pyramid.getPositions().concat(cube.getPositions()));
+		var colors = new Float32Array(pyramid.getColors().concat(cube.getColors()));
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 		gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
-		gl.vertexAttribPointer(apos, 3, gl.FLOAT, false, 3 * 4, 0);
-
-		var colors = pyramid.getColors();
+		gl.vertexAttribPointer(apos, 3, gl.FLOAT, false, 0, 0);
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
 		gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
-		gl.vertexAttribPointer(acolor, 4, gl.FLOAT, false, 4 * 4, 0);
+		gl.vertexAttribPointer(acolor, 4, gl.FLOAT, false, 0, 0);
 
 		var amvp = gl.getUniformLocation(program, 'mvp');
 		if (amvp === -1) {
 			throw new Error('Error during uniform address retrieval');
 		}
-		setInterval(function () { draw(gl, amvp); }, 50);
+
+		console.log('vertices', positions.length);
+		console.log('colors', colors.length);
+		console.log(positions.length / colors.length);
+		setInterval(function () { draw(gl, amvp, positions.length); }, 50);
 	}
 
-	function draw(gl, amvp) {
+	function draw(gl, amvp, totalVertices) {
 		if (gl && running) {
 			// Gets control value angles from HTML page via DOM
 			var ax = parseInt(document.getElementById('ax').innerHTML, 10); //eslint-disable-line no-undef
@@ -140,46 +148,16 @@
 			az *= 2 * Math.PI / 360;
 
 				// Creates matrix using rotation angles
-			var mat = getTransformationMatrix(ax, ay, az);
+			var mat = transformHelper.getRotation(ax, ay, az);
 
 			// Sets the model-view-projections matrix in the shader
 			gl.uniformMatrix4fv(amvp, false, mat);
 
 			gl.clearColor(0.0, 0.0, 0.5, 1.0);
 			gl.clear(gl.COLOR_BUFFER_BIT);
-			gl.drawArrays(gl.TRIANGLES, 0, 12);
+			gl.drawArrays(gl.TRIANGLES, 0, totalVertices / 3);
 			gl.flush();
 		}
-	}
-
-	function getTransformationMatrix(rx, ry, rz) {
-		var cx = Math.cos(rx), sx = Math.sin(rx);
-		var cy = Math.cos(ry), sy = Math.sin(ry);
-		var cz = Math.cos(rz), sz = Math.sin(rz);
-
-		return new Float32Array(
-			[cy * cz, (sx * sy * cz - cx * sz), (sx * sz + cx * sy * cz), 0,
-			cy * sz, (sx * sy * sz + cx * cz), (cx * sy * sz - sx * cz), 0,
-			-sy,   sx * cy,            cx * cy,            0,
-			0,     0,                0,                1]);
-	}
-
-	function makeTranslation(tx, ty, tz) {
-		return [
-			1, 0, 0, tx,
-			0, 1, 0, ty,
-			0, 0, 1, tz,
-			0, 0, 0, 1
-		];
-	}
-
-	function makeScale(sx, sy, sz) {
-		return [
-			sx, 0, 0, 0,
-			0, sy, 0, 0,
-			0, 0, sz, 0,
-			0, 0, 0, 1
-	  ];
 	}
 
 	start();
@@ -196,71 +174,8 @@
 /* 3 */,
 /* 4 */,
 /* 5 */,
-/* 6 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	function Model() {
-	}
-	module.exports = Model;
-
-
-/***/ },
-/* 7 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict'; //eslint-disable-line no-unused-expressions
-	var inherits = __webpack_require__(9).inherits;
-	var Model = __webpack_require__(6);
-	function Pyramid() {
-		Model.call(this);
-	}
-	inherits(Pyramid, Model);
-	module.exports = Pyramid;
-
-	Pyramid.prototype.getPositions = function () {
-		return new Float32Array([
-			0,0,0,
-			0.8,0,0,
-			0.5,0.8,0,
-
-			0.8,0,0,
-			0.5,0,0.8,
-			0.5,0.8,0,
-
-			0,0,0,
-			0.5,0,0.8,
-			0.5,0.8,0,
-
-			0,0,0,
-			0.8,0,0,
-			0.5,0,0.8
-		]);
-	};
-
-	Pyramid.prototype.getColors = function () {
-		return new Float32Array([
-			1,0,0,1,
-			1,0,0,1,
-			1,0,0,1,
-
-			0,1,0,1,
-			0,1,0,1,
-			0,1,0,1,
-
-			0,0,1,1,
-			0,0,1,1,
-			0,0,1,1,
-
-			1,0,0,1,
-			0,1,0,1,
-			0,0,1,1
-		]);
-	};
-
-
-/***/ },
+/* 6 */,
+/* 7 */,
 /* 8 */
 /***/ function(module, exports) {
 
@@ -989,6 +904,215 @@
 	    && typeof arg.fill === 'function'
 	    && typeof arg.readUInt8 === 'function';
 	}
+
+/***/ },
+/* 12 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict'; //eslint-disable-line no-unused-expressions
+	var inherits = __webpack_require__(9).inherits;
+	var Model = __webpack_require__(13);
+	function Pyramid() {
+		Model.call(
+			this,
+			[
+				0,0,0,
+				0.8,0,0,
+				0.5,0.8,0,
+
+				0.8,0,0,
+				0.5,0,0.8,
+				0.5,0.8,0,
+
+				0,0,0,
+				0.5,0,0.8,
+				0.5,0.8,0,
+
+				0,0,0,
+				0.8,0,0,
+				0.5,0,0.8
+			],
+			[
+				1,0,0,1,
+				1,0,0,1,
+				1,0,0,1,
+
+				0,1,0,1,
+				0,1,0,1,
+				0,1,0,1,
+
+				0,0,1,1,
+				0,0,1,1,
+				0,0,1,1,
+
+				1,0,0,1,
+				0,1,0,1,
+				0,0,1,1
+			]
+		);
+	}
+	inherits(Pyramid, Model);
+	module.exports = Pyramid;
+
+
+/***/ },
+/* 13 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	function Model(vertices, colors) {
+		if (vertices.constructor !== Array) {
+			throw new Error('vertices must be an array');
+		}
+		if (colors.constructor !== Array) {
+			throw new Error('colors must be an array');
+		}
+		if (vertices.length / colors.length !== 3/4) {
+			throw new Error('wrong number of colors for vertices');
+		}
+		this._vertices = vertices;
+		this._colors = colors;
+	}
+	module.exports = Model;
+
+	Model.prototype.getPositions = function () {
+		return this._vertices;
+	};
+
+	Model.prototype.getColors = function () {
+		return this._colors;
+	};
+
+	Model.prototype.getSize = function () {
+		return this._vertices.length;
+	};
+
+
+/***/ },
+/* 14 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict'; //eslint-disable-line no-unused-expressions
+	var inherits = __webpack_require__(9).inherits;
+	var Model = __webpack_require__(13);
+	function Cube() {
+		Model.call(
+			this,
+				[
+				// Front face
+				-0.7, -0.7,  0.7,
+				 0.7, -0.7,  0.7,
+				 0.7,  0.7,  0.7,
+				-0.7,  0.7,  0.7,
+
+				// Back face
+				-0.7, -0.7, -0.7,
+				-0.7,  0.7, -0.7,
+				 0.7,  0.7, -0.7,
+				 0.7, -0.7, -0.7,
+
+				// Top face
+				-0.7,  0.7, -0.7,
+				-0.7,  0.7,  0.7,
+				 0.7,  0.7,  0.7,
+				 0.7,  0.7, -0.7,
+
+				// Bottom face
+				-0.7, -0.7, -0.7,
+				 0.7, -0.7, -0.7,
+				 0.7, -0.7,  0.7,
+				-0.7, -0.7,  0.7,
+
+				// Right face
+				 0.7, -0.7, -0.7,
+				 0.7,  0.7, -0.7,
+				 0.7,  0.7,  0.7,
+				 0.7, -0.7,  0.7,
+
+				// Left face
+				-0.7, -0.7, -0.7,
+				-0.7, -0.7,  0.7,
+				-0.7,  0.7,  0.7,
+				-0.7,  0.7, -0.7
+			],
+			[
+				// [1.0, 0.0, 0.0, 1.0],     // Front face  // this is for an element array
+				// [1.0, 1.0, 0.0, 1.0],     // Back face
+				// [0.0, 1.0, 0.0, 1.0],     // Top face
+				// [1.0, 0.5, 0.5, 1.0],     // Bottom face
+				// [1.0, 0.0, 1.0, 1.0],     // Right face
+				// [0.0, 0.0, 1.0, 1.0]      // Left face
+				1,0,0,1,
+				1,0,0,1,
+				1,0,0,1,
+				1,0,0,1,
+
+				0,1,0,1,
+				0,1,0,1,
+				0,1,0,1,
+				0,1,0,1,
+
+				0,0,1,1,
+				0,0,1,1,
+				0,0,1,1,
+				0,0,1,1,
+
+				1,1,0,1,
+				1,1,0,1,
+				1,1,0,1,
+				1,1,0,1,
+
+				1,0,1,1,
+				1,0,1,1,
+				1,0,1,1,
+				1,0,1,1,
+
+				0,1,1,1,
+				0,1,1,1,
+				0,1,1,1,
+				0,1,1,1
+			]
+		);
+	}
+	inherits(Cube, Model);
+	module.exports = Cube;
+
+
+/***/ },
+/* 15 */
+/***/ function(module, exports) {
+
+	exports.getRotation = function getRotation(rx, ry, rz) {
+		var cx = Math.cos(rx), sx = Math.sin(rx);
+		var cy = Math.cos(ry), sy = Math.sin(ry);
+		var cz = Math.cos(rz), sz = Math.sin(rz);
+
+		return new Float32Array(
+			[cy * cz, (sx * sy * cz - cx * sz), (sx * sz + cx * sy * cz), 0,
+			cy * sz, (sx * sy * sz + cx * cz), (cx * sy * sz - sx * cz), 0,
+			-sy,   sx * cy,            cx * cy,            0,
+			0,     0,                0,                1]);
+	};
+
+	exports.makeTranslation = function makeTranslation(tx, ty, tz) {
+		return [
+			1, 0, 0, tx,
+			0, 1, 0, ty,
+			0, 0, 1, tz,
+			0, 0, 0, 1
+		];
+	};
+
+	exports.makeScale = function makeScale(sx, sy, sz) {
+		return [
+			sx, 0, 0, 0,
+			0, sy, 0, 0,
+			0, 0, sz, 0,
+			0, 0, 0, 1
+	  ];
+	};
+
 
 /***/ }
 /******/ ]);
