@@ -1,0 +1,42 @@
+node_modules/
+/*.log
+/forever.pid
+/.forever
+/config/local.yaml
+/config/local.yaml.disabled
+/config/runtime.json
+/docs/jsdoc
+sniflog.json
+
+.digest-cache.json
+
+# ankamaCache
+/staticData
+!/staticData/addendum
+
+/common/**/component.json
+/src/**/component.json
+
+# Ignore WebStorm files
+.idea/
+
+# Ignore vagrant files
+.vagrant/
+Vagrantfile
+vagrant_ansible_inventory_*
+
+check.txt
+
+/ankamaCache
+/assets/*
+!/assets/ui
+/build
+/manifest.json
+/assetMap.json
+
+/components
+/logs/*
+!/logs/.placeholder
+
+# Ignore Mac OS files
+.DS_Store

@@ -1,0 +1,30 @@
+{
+  "name": "webgl",
+  "version": "1.0.0",
+  "description": "",
+  "main": "gl.js",
+  "dependencies": {
+    "css-loader": "^0.23.1",
+    "extract-text-webpack-plugin": "^1.0.1",
+    "less": "^2.6.0",
+    "less-loader": "^2.2.2",
+    "style-loader": "^0.13.0",
+    "webpack-sources": "^0.1.1"
+  },
+  "devDependencies": {
+    "webpack": "^1.12.12"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tatsujinichi/webgl.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Tatsujinichi/webgl/issues"
+  },
+  "homepage": "https://github.com/Tatsujinichi/webgl#readme"
+}

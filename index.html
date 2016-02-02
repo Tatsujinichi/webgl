@@ -1,28 +1,58 @@
 <head>
-	<script id="2d-vertex-shader" type="x-shader/x-vertex">
-		attribute vec3 a_position;
-		uniform mat4 mvp;
-
-		void main() {
-			gl_Position = mvp * vec4(a_position, 1);
-		}
-	</script>
-
-	<script id="2d-fragment-shader" type="x-shader/x-fragment">
-		void main() {
-			gl_FragColor = vec4(0, 1, 0, 1);  // green
-		}
-	</script>
-
-	<link rel=stylesheet type="text/css" href="./style.css">
-	<script type="text/javascript" src="./gl.js"> </script>
 
 </head>
 
-<body onload="start();">
+<body onclick="running = !running;">
 
 	<div>
 		<canvas id=canvas />
 	</div>
+
+	<div>RX:</div>
+	<div width:1.5em id='ax'>0</div>
+	<div>
+	  <select id='dx'>
+	    <option>-2<option>-1<option>0<option selected="selected">+1<option>+2
+	 </select>
+	</div>
+
+	<div>RY:</div>
+	<div width:1.5em id='ay'>0</div>
+	<div>
+	  <select id='dy'>
+		<option>-2<option>-1<option>0<option selected="selected">+1<option>+2
+	 </select>
+	</div>
+
+	<div>RZ:</div>
+	<div width:1.5em id='az'>0</div>
+	<div>
+	  <select id='dz'>
+		<option>-2<option>-1<option>0<option selected="selected">+1<option>+2
+	 </select>
+	</div>
+
+	<script id="2d-vertex-shader" type="x-shader/x-vertex">
+		attribute vec3 a_position;
+		attribute vec4 a_color;
+
+		uniform mat4 mvp;
+
+		varying mediump vec4 v_color;
+
+		void main() {
+			gl_Position = mvp * vec4(a_position, 1);
+			v_color = a_color;
+		}
+	</script>
+
+	<script id="2d-fragment-shader" type="x-shader/x-fragment">
+		varying mediump vec4 v_color;
+		void main() {
+			gl_FragColor = v_color;
+		}
+	</script>
+	<script type="text/javascript" src="./main.js"> </script>
+	<link rel=stylesheet type="text/css" href="./style.css">
 
 </body>
