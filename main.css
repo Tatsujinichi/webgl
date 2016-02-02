@@ -1,0 +1,10 @@
+#body {
+  background-color: lightblue;
+}
+/*#canvas {
+	width:800;
+	height:600;
+}*/
+#div {
+  display: inline-block;
+}
