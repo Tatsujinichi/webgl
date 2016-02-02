@@ -1,5 +1,8 @@
-var model = require('./model.js');
+'use strict'; //eslint-disable-line no-unused-expressions
+
 require('style.less');
+
+var Pyramid = require('./Pyramid.js');
 var running = true;
 
 function start() { //eslint-disable-line no-unused-vars
@@ -50,29 +53,14 @@ function start() { //eslint-disable-line no-unused-vars
 	var positionBuffer = gl.createBuffer();
 	var colorBuffer = gl.createBuffer();
 
-	var positions = model.positions;
+	var pyramid = new Pyramid();
+	var positions = pyramid.getPositions();
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 	gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
 	gl.vertexAttribPointer(apos, 3, gl.FLOAT, false, 3 * 4, 0);
 
-	var colors = new Float32Array([
-		1,0,0,1,
-		1,0,0,1,
-		1,0,0,1,
-
-		0,1,0,1,
-		0,1,0,1,
-		0,1,0,1,
-
-		0,0,1,1,
-		0,0,1,1,
-		0,0,1,1,
-
-		1,0,0,1,
-		0,1,0,1,
-		0,0,1,1
-	]);
+	var colors = pyramid.getColors();
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
 	gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
