@@ -2,7 +2,7 @@
 
 var transformHelper = require('transformHelper.js');
 
-function Model(translate, rotate, scale, vertices, colors) {
+function Model(translation, rotation, scale, vertices, colors) {
 	if (vertices.constructor !== Array) {
 		throw new Error('vertices must be an array');
 	}
@@ -12,9 +12,9 @@ function Model(translate, rotate, scale, vertices, colors) {
 	if (vertices.length / colors.length !== 3/4) {
 		throw new Error('wrong number of colors for vertices');
 	}
-	this._translate = translate;
-	this._rotate = rotate;
-	this._scale = scale;
+	this._translation = translation || [0, 0, 0];
+	this._rotation = rotation || [0, 0 ,0];
+	this._scale = scale || [0, 0, 0];
 	this._vertices = vertices;
 	this._colors = colors;
 }
@@ -30,4 +30,20 @@ Model.prototype.getColors = function () {
 
 Model.prototype.getSize = function () {
 	return this._vertices.length;
+};
+
+Model.prototype.getTranslationMatrix = function () {
+	return transformHelper.makeTranslationMatrix(this._translation);
+};
+
+Model.prototype.getRotationMatrix = function () {
+	return transformHelper.makeRotationMatrix(this._rotation);
+};
+
+Model.prototype.getScaleMatrix = function () {
+	return transformHelper.makeScaleMatrix(this._scale);
+};
+
+Model.prototype.getTransformationMatrix = function () {
+	return transformHelper.makeTransformationMatrix(this._translation, this._rotation, this._scale);
 };

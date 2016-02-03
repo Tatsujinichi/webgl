@@ -56,10 +56,12 @@ function start() { //eslint-disable-line no-unused-vars
 	var colorBuffer = gl.createBuffer();
 
 
-	//TODO: pass Trans rotate scale
+
 	var pyramidTranslation = [0, 0, 0, 0];
-	var cubeTranslation = [0, 0, 0, 0];
+	var pyramidRotation = [0, 0, 0, 0];
+
 	var pyramid = new Pyramid(pyramidTranslation);
+	var cubeTranslation = [0, 0, 0, 0];
 	var cube = new Cube(cubeTranslation);
 	var positions = new Float32Array(pyramid.getPositions().concat(cube.getPositions()));
 	var colors = new Float32Array(pyramid.getColors().concat(cube.getColors()));
