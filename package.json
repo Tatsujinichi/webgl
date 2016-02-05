@@ -8,6 +8,7 @@
     "extract-text-webpack-plugin": "^1.0.1",
     "less": "^2.6.0",
     "less-loader": "^2.2.2",
+    "mocha": "^2.4.5",
     "style-loader": "^0.13.0",
     "util": "^0.10.3",
     "webpack-sources": "^0.1.1"

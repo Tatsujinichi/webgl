@@ -47,9 +47,9 @@
 	'use strict'; //eslint-disable-line no-unused-expressions
 
 	__webpack_require__(1);
-	var Pyramid = __webpack_require__(12);
-	var Cube = __webpack_require__(14);
-	var transformHelper = __webpack_require__(15);
+	var Pyramid = __webpack_require__(5);
+	var Cube = __webpack_require__(12);
+	var transformHelper = __webpack_require__(11);
 
 	var running = true;
 
@@ -102,11 +102,17 @@
 		var colorBuffer = gl.createBuffer();
 
 
-		//TODO: pass Trans rotate scale
+
 		var pyramidTranslation = [0, 0, 0, 0];
-		var cubeTranslation = [0, 0, 0, 0];
-		var pyramid = new Pyramid(pyramidTranslation);
-		var cube = new Cube(cubeTranslation);
+		var pyramidRotation = [0, 0, 0, 0];
+		var pyramidScale = [0, 0, 0, 0];
+		var pyramid = new Pyramid(pyramidTranslation, pyramidRotation, pyramidScale);
+
+		var cubeTranslation = [50, 50, 0, 0];
+		var cubeRotation = [0, 0, 0, 0];
+		var cubeScale = [0, 0, 0, 0];
+		var cube = new Cube(cubeTranslation, cubeRotation, cubeScale);
+
 		var positions = new Float32Array(pyramid.getPositions().concat(cube.getPositions()));
 		var colors = new Float32Array(pyramid.getColors().concat(cube.getColors()));
 
@@ -150,7 +156,7 @@
 			az *= 2 * Math.PI / 360;
 
 				// Creates matrix using rotation angles
-			var mat = transformHelper.getRotation(ax, ay, az);
+			var mat = transformHelper.makeRotationMatrix(ax, ay, az);
 
 			// Sets the model-view-projections matrix in the shader
 			gl.uniformMatrix4fv(amvp, false, mat);
@@ -158,6 +164,7 @@
 			gl.clearColor(0.0, 0.0, 0.5, 1.0);
 			gl.clear(gl.COLOR_BUFFER_BIT);
 			gl.drawArrays(gl.TRIANGLES, 0, totalVertices / 3);
+			//gl.drawArrays(gl.LINE_STRIP, 0, totalVertices / 3);
 			gl.flush();
 		}
 	}
@@ -175,39 +182,60 @@
 /* 2 */,
 /* 3 */,
 /* 4 */,
-/* 5 */,
-/* 6 */,
-/* 7 */,
-/* 8 */
-/***/ function(module, exports) {
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
 
-	if (typeof Object.create === 'function') {
-	  // implementation from standard node.js 'util' module
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    ctor.prototype = Object.create(superCtor.prototype, {
-	      constructor: {
-	        value: ctor,
-	        enumerable: false,
-	        writable: true,
-	        configurable: true
-	      }
-	    });
-	  };
-	} else {
-	  // old school shim for old browsers
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    var TempCtor = function () {}
-	    TempCtor.prototype = superCtor.prototype
-	    ctor.prototype = new TempCtor()
-	    ctor.prototype.constructor = ctor
-	  }
+	'use strict'; //eslint-disable-line no-unused-expressions
+	var inherits = __webpack_require__(6).inherits;
+	var Model = __webpack_require__(10);
+	function Pyramid(translation, rotation, scale) {
+		Model.call(
+			this,
+			translation,
+			rotation,
+			scale,
+			[
+				0,0,0,
+				0.8,0,0,
+				0.5,0.8,0,
+
+				0.8,0,0,
+				0.5,0,0.8,
+				0.5,0.8,0,
+
+				0,0,0,
+				0.5,0,0.8,
+				0.5,0.8,0,
+
+				0,0,0,
+				0.8,0,0,
+				0.5,0,0.8
+			],
+			[
+				1,0,0,1,
+				1,0,0,1,
+				1,0,0,1,
+
+				0,1,0,1,
+				0,1,0,1,
+				0,1,0,1,
+
+				0,0,1,1,
+				0,0,1,1,
+				0,0,1,1,
+
+				1,0,0,1,
+				0,1,0,1,
+				0,0,1,1
+			]
+		);
 	}
+	inherits(Pyramid, Model);
+	module.exports = Pyramid;
 
 
 /***/ },
-/* 9 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global, process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -735,7 +763,7 @@
 	}
 	exports.isPrimitive = isPrimitive;
 
-	exports.isBuffer = __webpack_require__(11);
+	exports.isBuffer = __webpack_require__(8);
 
 	function objectToString(o) {
 	  return Object.prototype.toString.call(o);
@@ -779,7 +807,7 @@
 	 *     prototype.
 	 * @param {function} superCtor Constructor function to inherit prototype from.
 	 */
-	exports.inherits = __webpack_require__(8);
+	exports.inherits = __webpack_require__(9);
 
 	exports._extend = function(origin, add) {
 	  // Don't do anything if add isn't an object
@@ -797,10 +825,10 @@
 	  return Object.prototype.hasOwnProperty.call(obj, prop);
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(10)))
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(7)))
 
 /***/ },
-/* 10 */
+/* 7 */
 /***/ function(module, exports) {
 
 	// shim for using process in browser
@@ -897,7 +925,7 @@
 
 
 /***/ },
-/* 11 */
+/* 8 */
 /***/ function(module, exports) {
 
 	module.exports = function isBuffer(arg) {
@@ -908,79 +936,55 @@
 	}
 
 /***/ },
-/* 12 */
-/***/ function(module, exports, __webpack_require__) {
+/* 9 */
+/***/ function(module, exports) {
 
-	'use strict'; //eslint-disable-line no-unused-expressions
-	var inherits = __webpack_require__(9).inherits;
-	var Model = __webpack_require__(13);
-	function Pyramid(translation, rotation, scale) {
-		Model.call(
-			this,
-			translation,
-			rotation,
-			scale,
-			[
-				0,0,0,
-				0.8,0,0,
-				0.5,0.8,0,
-
-				0.8,0,0,
-				0.5,0,0.8,
-				0.5,0.8,0,
-
-				0,0,0,
-				0.5,0,0.8,
-				0.5,0.8,0,
-
-				0,0,0,
-				0.8,0,0,
-				0.5,0,0.8
-			],
-			[
-				1,0,0,1,
-				1,0,0,1,
-				1,0,0,1,
-
-				0,1,0,1,
-				0,1,0,1,
-				0,1,0,1,
-
-				0,0,1,1,
-				0,0,1,1,
-				0,0,1,1,
-
-				1,0,0,1,
-				0,1,0,1,
-				0,0,1,1
-			]
-		);
+	if (typeof Object.create === 'function') {
+	  // implementation from standard node.js 'util' module
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    ctor.prototype = Object.create(superCtor.prototype, {
+	      constructor: {
+	        value: ctor,
+	        enumerable: false,
+	        writable: true,
+	        configurable: true
+	      }
+	    });
+	  };
+	} else {
+	  // old school shim for old browsers
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    var TempCtor = function () {}
+	    TempCtor.prototype = superCtor.prototype
+	    ctor.prototype = new TempCtor()
+	    ctor.prototype.constructor = ctor
+	  }
 	}
-	inherits(Pyramid, Model);
-	module.exports = Pyramid;
 
 
 /***/ },
-/* 13 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var transformHelper = __webpack_require__(15);
+	var transformHelper = __webpack_require__(11);
 
-	function Model(translate, rotate, scale, vertices, colors) {
+	function Model(translation, rotation, scale, vertices, colors) {
 		if (vertices.constructor !== Array) {
 			throw new Error('vertices must be an array');
 		}
 		if (colors.constructor !== Array) {
 			throw new Error('colors must be an array');
 		}
-		if (vertices.length / colors.length !== 3/4) {
+		if (vertices.length / colors.length !== 3 / 4) {
 			throw new Error('wrong number of colors for vertices');
 		}
-		this._translate = translate;
-		this._rotate = rotate;
-		this._scale = scale;
+		this._translation = translation || [0, 0, 0, 0];
+		this._rotation = rotation || [0, 0, 0, 0];
+		this._scale = scale || [0, 0, 0, 0];
 		this._vertices = vertices;
 		this._colors = colors;
 	}
@@ -998,14 +1002,91 @@
 		return this._vertices.length;
 	};
 
+	Model.prototype.getTranslationMatrix = function () {
+		return transformHelper.makeTranslationMatrix(this._translation);
+	};
+
+	Model.prototype.getRotationMatrix = function () {
+		return transformHelper.makeRotationMatrix(this._rotation);
+	};
+
+	Model.prototype.getScaleMatrix = function () {
+		return transformHelper.makeScaleMatrix(this._scale);
+	};
+
+	Model.prototype.getTransformationMatrix = function () {
+		return transformHelper.makeTransformationMatrix(this._translation, this._rotation, this._scale);
+	};
+
+	 //TODO: add view into buffer
+
 
 /***/ },
-/* 14 */
+/* 11 */
+/***/ function(module, exports) {
+
+	exports.makeRotationMatrix = function makeRotationMatrix(rx, ry, rz) {
+		var cx = Math.cos(rx), sx = Math.sin(rx);
+		var cy = Math.cos(ry), sy = Math.sin(ry);
+		var cz = Math.cos(rz), sz = Math.sin(rz);
+
+		return new Float32Array(
+			[cy * cz, (sx * sy * cz - cx * sz), (sx * sz + cx * sy * cz), 0,
+			cy * sz, (sx * sy * sz + cx * cz), (cx * sy * sz - sx * cz), 0,
+			-sy,   sx * cy,            cx * cy,            0,
+			0,     0,                0,                1]);
+	};
+
+	exports.makeTranslationMatrix = function makeTranslationMatrix(tx, ty, tz) {
+		return [
+			1, 0, 0, tx,
+			0, 1, 0, ty,
+			0, 0, 1, tz,
+			0, 0, 0, 1
+		];
+	};
+
+	exports.makeScaleMatrix = function makeScaleMatrix(sx, sy, sz) {
+		return [
+			sx, 0, 0, 0,
+			0, sy, 0, 0,
+			0, 0, sz, 0,
+			0, 0, 0, 1
+	  ];
+	};
+
+	exports.makeTransformationMatrix = function makeTransformationMatrix(translation, rotation, scale) {
+		var tr = this.matMultiply4x4(translation, rotation);
+		return this.matMultiply4x4(tr, scale);
+	};
+
+	// not the fastest out there
+	exports.matMultiply4x4 = function matMultiply4x4(matA, matB) {
+		var result = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]; // so we don't have to change array size.
+		var count = 0;
+		var sum = 0;
+		for (var i = 0; i < 3; i++) {
+			for (var j = 0; j < 3; j++) {
+				for (var k = 0; k < 3; k++) {
+					console.log(i,j,k, matA[i * 4 - k],matB[k * 4 - j]);
+					sum += matA[i * 4 - k] * matB[k * 4 - j]; // 4 is the number of items in a row.
+				}
+				result[count] = sum;
+				sum = 0;
+				count++;
+			}
+		}
+		return result;
+	};
+
+
+/***/ },
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict'; //eslint-disable-line no-unused-expressions
-	var inherits = __webpack_require__(9).inherits;
-	var Model = __webpack_require__(13);
+	var inherits = __webpack_require__(6).inherits;
+	var Model = __webpack_require__(10);
 	function Cube(translation, rotation, scale) {
 		Model.call(
 			this,
@@ -1090,41 +1171,6 @@
 	}
 	inherits(Cube, Model);
 	module.exports = Cube;
-
-
-/***/ },
-/* 15 */
-/***/ function(module, exports) {
-
-	exports.getRotation = function getRotation(rx, ry, rz) {
-		var cx = Math.cos(rx), sx = Math.sin(rx);
-		var cy = Math.cos(ry), sy = Math.sin(ry);
-		var cz = Math.cos(rz), sz = Math.sin(rz);
-
-		return new Float32Array(
-			[cy * cz, (sx * sy * cz - cx * sz), (sx * sz + cx * sy * cz), 0,
-			cy * sz, (sx * sy * sz + cx * cz), (cx * sy * sz - sx * cz), 0,
-			-sy,   sx * cy,            cx * cy,            0,
-			0,     0,                0,                1]);
-	};
-
-	exports.makeTranslation = function makeTranslation(tx, ty, tz) {
-		return [
-			1, 0, 0, tx,
-			0, 1, 0, ty,
-			0, 0, 1, tz,
-			0, 0, 0, 1
-		];
-	};
-
-	exports.makeScale = function makeScale(sx, sy, sz) {
-		return [
-			sx, 0, 0, 0,
-			0, sy, 0, 0,
-			0, 0, sz, 0,
-			0, 0, 0, 1
-	  ];
-	};
 
 
 /***/ }

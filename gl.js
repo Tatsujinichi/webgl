@@ -59,10 +59,14 @@ function start() { //eslint-disable-line no-unused-vars
 
 	var pyramidTranslation = [0, 0, 0, 0];
 	var pyramidRotation = [0, 0, 0, 0];
+	var pyramidScale = [0, 0, 0, 0];
+	var pyramid = new Pyramid(pyramidTranslation, pyramidRotation, pyramidScale);
 
-	var pyramid = new Pyramid(pyramidTranslation);
-	var cubeTranslation = [0, 0, 0, 0];
-	var cube = new Cube(cubeTranslation);
+	var cubeTranslation = [50, 50, 0, 0];
+	var cubeRotation = [0, 0, 0, 0];
+	var cubeScale = [0, 0, 0, 0];
+	var cube = new Cube(cubeTranslation, cubeRotation, cubeScale);
+
 	var positions = new Float32Array(pyramid.getPositions().concat(cube.getPositions()));
 	var colors = new Float32Array(pyramid.getColors().concat(cube.getColors()));
 
@@ -106,7 +110,7 @@ function draw(gl, amvp, totalVertices) {
 		az *= 2 * Math.PI / 360;
 
 			// Creates matrix using rotation angles
-		var mat = transformHelper.getRotation(ax, ay, az);
+		var mat = transformHelper.makeRotationMatrix(ax, ay, az);
 
 		// Sets the model-view-projections matrix in the shader
 		gl.uniformMatrix4fv(amvp, false, mat);
@@ -114,6 +118,7 @@ function draw(gl, amvp, totalVertices) {
 		gl.clearColor(0.0, 0.0, 0.5, 1.0);
 		gl.clear(gl.COLOR_BUFFER_BIT);
 		gl.drawArrays(gl.TRIANGLES, 0, totalVertices / 3);
+		//gl.drawArrays(gl.LINE_STRIP, 0, totalVertices / 3);
 		gl.flush();
 	}
 }

@@ -9,12 +9,12 @@ function Model(translation, rotation, scale, vertices, colors) {
 	if (colors.constructor !== Array) {
 		throw new Error('colors must be an array');
 	}
-	if (vertices.length / colors.length !== 3/4) {
+	if (vertices.length / colors.length !== 3 / 4) {
 		throw new Error('wrong number of colors for vertices');
 	}
-	this._translation = translation || [0, 0, 0];
-	this._rotation = rotation || [0, 0 ,0];
-	this._scale = scale || [0, 0, 0];
+	this._translation = translation || [0, 0, 0, 0];
+	this._rotation = rotation || [0, 0, 0, 0];
+	this._scale = scale || [0, 0, 0, 0];
 	this._vertices = vertices;
 	this._colors = colors;
 }
@@ -47,3 +47,5 @@ Model.prototype.getScaleMatrix = function () {
 Model.prototype.getTransformationMatrix = function () {
 	return transformHelper.makeTransformationMatrix(this._translation, this._rotation, this._scale);
 };
+
+ //TODO: add view into buffer

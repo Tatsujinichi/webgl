@@ -41,6 +41,7 @@ exports.matMultiply4x4 = function matMultiply4x4(matA, matB) {
 	for (var i = 0; i < 3; i++) {
 		for (var j = 0; j < 3; j++) {
 			for (var k = 0; k < 3; k++) {
+				console.log(i,j,k, matA[i * 4 - k],matB[k * 4 - j]);
 				sum += matA[i * 4 - k] * matB[k * 4 - j]; // 4 is the number of items in a row.
 			}
 			result[count] = sum;
